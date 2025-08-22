@@ -2,48 +2,13 @@
 <html>
   <head>
     <link rel="stylesheet" href="./output.css" />
-    <script defer src="./assets/alpine.min.js"></script>
     <script type="module" src="./app.js"></script>
   </head>
-
-  <script>
-    function handleSearch(event) {
-      event.preventDefault();
-      const search = event.target[0].value;
-      console.log(search);
-
-      const searchContainer = document.getElementById("search-container");
-      searchContainer.classList.add(
-        "justify-start",
-        "p-4",
-        "flex-row",
-        "border-b",
-        "border-background"
-      );
-      searchContainer.classList.remove("justify-center", "h-full", "flex-col");
-
-      const logo = searchContainer.querySelector("img");
-      logo.classList.add("w-8", "h-8");
-      logo.classList.remove("w-64", "h-64");
-
-      const title = searchContainer.querySelector("h2");
-      title.classList.add("hidden");
-
-      const searchInput = searchContainer.querySelector("input");
-      searchInput.classList.remove("mb-32", "mt-8", "h-12");
-      searchInput.classList.add("h-8");
-
-      const resultsContainer = document.getElementById("results-container");
-      resultsContainer.classList.remove("hidden");
-    }
-
-    function handleLogoClick() {}
-  </script>
 
   <body class="bg-white m-0 p-0">
     <div
       id="titlebar"
-      class="h-8 fixed top-0 left-0 w-full bg-secondary text-secondary-foreground"
+      class="h-8 fixed top-0 left-0 w-full bg-secondary text-accent-foreground"
     >
       <pear-ctrl></pear-ctrl>
       <div
@@ -55,31 +20,126 @@
 
     <main
       class="flex flex-col h-screen justify-start pt-8 bg-white text-foreground"
+      x-data="searchApp()"
     >
       <div
         id="search-container"
-        class="flex flex-col items-center justify-center h-full"
+        class="flex items-center"
+        :class="{
+          'flex-col justify-center h-full': !isSearching,
+          'justify-start p-4 flex-row border-b border-background': isSearching
+        }"
       >
-        <button onclick="handleLogoClick()">
-          <img src="./assets/logo.png" alt="Pear Logo" class="w-64 h-64" />
+        <button @click="resetSearch()">
+          <img
+            src="./assets/logo.png"
+            alt="Pear Logo"
+            :class="{
+              'w-64 h-64': !isSearching,
+              'w-8 h-8': isSearching
+            }"
+          />
         </button>
-        <h2>Search your peers for P2P apps</h2>
-        <form onsubmit="handleSearch(event)">
+        <h2 :class="{ 'hidden': isSearching }">
+          Search your peers for P2P apps
+        </h2>
+        <form @submit.prevent="handleSearch()">
           <input
+            x-model="searchQuery"
             name="search"
             type="text"
             placeholder="Search for P2P apps..."
-            class="mb-32 mt-8 w-96 h-12 rounded-full px-4 py-2 text-base border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition"
+            :class="{
+              'mb-32 mt-8 h-12': !isSearching,
+              'h-8': isSearching
+            }"
+            class="w-96 rounded-full px-4 py-2 text-base border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition"
           />
         </form>
       </div>
 
       <div
         id="results-container"
-        class="flex-col items-center justify-center h-full hidden p-4"
+        class="flex-col items-center justify-center h-full p-4"
+        :class="{ 'hidden': !isSearching }"
       >
-        <h2>Results</h2>
+        <div>
+          <!-- No results message -->
+          <p
+            x-show="searchResults.length === 0"
+            class="text-gray-500 text-center"
+          >
+            No apps found matching your search.
+          </p>
+
+          <!-- Results list -->
+          <template x-for="app in searchResults" :key="app.name">
+            <div class="max-w-2xl mb-6">
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0 mt-1">
+                  <img
+                    :src="app.icon || './assets/logo.png'"
+                    :alt="app.name + ' icon'"
+                    class="w-6 h-6 rounded object-cover"
+                    @error="$el.src='./assets/logo.png'"
+                  />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center space-x-2 mb-1">
+                    <a
+                      :href="app.url || '#'"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-blue-600 hover:underline text-lg font-medium leading-6"
+                      x-text="app.name || 'Unnamed App'"
+                    ></a>
+                    <span class="text-gray-500 text-sm">•</span>
+                    <span class="text-green-700 text-sm font-medium">App</span>
+                  </div>
+                  <div
+                    class="text-sm text-green-600 mb-1"
+                    x-text="app.url || '#'"
+                  ></div>
+                  <p
+                    class="text-sm text-gray-600 leading-5"
+                    x-text="app.description || 'No description available'"
+                  ></p>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
       </div>
     </main>
+
+    <script>
+      function searchApp() {
+        return {
+          isSearching: false,
+          searchQuery: "",
+          searchResults: [],
+
+          async handleSearch() {
+            if (this.searchQuery.trim()) {
+              this.isSearching = true;
+              console.log("Searching for:", this.searchQuery);
+
+              const apps = await sheets.list(schemas.apps, {
+                query: `[?name = '${this.searchQuery}']`,
+              });
+              console.log(apps);
+
+              this.searchResults = apps.map((app) => app.json);
+            }
+          },
+
+          resetSearch() {
+            this.isSearching = false;
+            this.searchQuery = "";
+            this.searchResults = [];
+          },
+        };
+      }
+    </script>
   </body>
 </html>

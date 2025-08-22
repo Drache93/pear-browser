@@ -2,7 +2,10 @@
 
 import SchemaScheets from 'schema-sheets'
 import Corestore from 'corestore'
+import Alpine from 'alpinejs'
 
+window.Alpine = Alpine
+Alpine.start()
 
 const store = new Corestore("./test")
 const sheets = new SchemaScheets(store)
@@ -35,6 +38,9 @@ const schemas = await sheets.listSchemas().then(schemas => schemas.reduce((acc, 
     return acc
 }, {}))
 
+global.schemas = schemas
+global.sheets = sheets
+
 let apps = await sheets.list(schemas.apps)
 
 if (apps.length === 0) {
@@ -52,6 +58,3 @@ if (apps.length === 0) {
         console.log('Failed to add app')
     }
 }
-
-
-console.log(apps)

@@ -18,12 +18,13 @@
     "build:tailwind": "npx @tailwindcss/cli -i ./input.css -o ./output.css"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.1.12",
     "brittle": "^3.0.0",
     "pear-interface": "^1.0.0",
-    "@tailwindcss/cli": "^4.1.12",
     "tailwindcss": "^4.1.12"
   },
   "dependencies": {
+    "alpinejs": "^3.14.9",
     "corestore": "^7.4.5",
     "schema-sheets": "^3.0.0"
   }
