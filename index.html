@@ -29,6 +29,7 @@
           'flex-col justify-center h-full': !isSearching,
           'justify-start p-4 flex-row border-b border-background': isSearching
         }"
+        x-show="openApp === null"
       >
         <button @click="resetSearch()">
           <img
@@ -62,6 +63,7 @@
         id="results-container"
         class="flex-col items-center justify-center h-full p-4"
         :class="{ 'hidden': !isSearching }"
+        x-show="openApp === null"
       >
         <div>
           <!-- No results message -->
@@ -87,10 +89,8 @@
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center space-x-2 mb-1">
                     <a
-                      :href="app.url || '#'"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-blue-600 hover:underline text-lg font-medium leading-6"
+                      @click="loadApp(app)"
+                      class="text-blue-600 hover:underline text-lg font-medium leading-6 cursor-pointer"
                       x-text="app.name || 'Unnamed App'"
                     ></a>
                     <span class="text-gray-500 text-sm">•</span>
@@ -110,14 +110,52 @@
           </template>
         </div>
       </div>
+
+      <div
+        id="app-container"
+        hx-get="/app"
+        hx-swap="innerHTML"
+        hx-trigger="customEvt"
+        x-show="openApp !== null"
+        class="w-full h-full flex items-center justify-center relative"
+      >
+        <div class="app-loading text-center">
+          <img src="./assets/logo.png" alt="Pear" class="h-64 w-64" />
+          <span class="block mt-4 text-lg">Loading...</span>
+        </div>
+      </div>
     </main>
 
     <script>
-      function searchApp() {
+      globalThis.XMLHttpRequest = null;
+
+      const searchApp = () => {
         return {
           isSearching: false,
           searchQuery: "",
           searchResults: [],
+          openApp: null,
+
+          loadApp(app) {
+            this.openApp = app;
+            console.log("opening app", app.name, app.url);
+
+            let pipe = Pear.worker.run(
+              "/Users/odinsson/Dev/pear/pearprojects-core/packages/pearprojects-core"
+            );
+
+            Pear.teardown(() => {
+              pipe.destroy();
+            });
+
+            globalThis.XMLHttpRequest = PearRequest.create(pipe);
+
+            // Trigger htmx to load the app content
+            const appContainer = document.getElementById("app-container");
+            if (appContainer) {
+              htmx.trigger(appContainer, "customEvt");
+            }
+          },
 
           async handleSearch() {
             if (this.searchQuery.trim()) {
@@ -137,9 +175,10 @@
             this.isSearching = false;
             this.searchQuery = "";
             this.searchResults = [];
+            this.openApp = null;
           },
         };
-      }
+      };
     </script>
   </body>
 </html>

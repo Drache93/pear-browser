@@ -26,6 +26,8 @@
   "dependencies": {
     "alpinejs": "^3.14.9",
     "corestore": "^7.4.5",
+    "htmx.org": "^2.0.6",
+    "pear-request": "^0.2.2",
     "schema-sheets": "^3.0.0"
   }
 }
