@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    }
+  }
+}

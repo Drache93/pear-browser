@@ -1,0 +1,30 @@
+{
+  "name": "pear-browser",
+  "main": "index.html",
+  "pear": {
+    "name": "pear-browser",
+    "type": "desktop",
+    "gui": {
+      "backgroundColor": "#1F2430",
+      "height": "768",
+      "width": "1024"
+    }
+  },
+  "type": "module",
+  "license": "Apache-2.0",
+  "scripts": {
+    "dev": "pear run -d .",
+    "test": "brittle test/*.test.js",
+    "build:tailwind": "npx @tailwindcss/cli -i ./input.css -o ./output.css"
+  },
+  "devDependencies": {
+    "brittle": "^3.0.0",
+    "pear-interface": "^1.0.0",
+    "@tailwindcss/cli": "^4.1.12",
+    "tailwindcss": "^4.1.12"
+  },
+  "dependencies": {
+    "corestore": "^7.4.5",
+    "schema-sheets": "^3.0.0"
+  }
+}
