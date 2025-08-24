@@ -10,6 +10,9 @@ import defaultApps from './apps.json' assert { type: 'json' }
 window.Alpine = Alpine
 window.htmx = htmx
 
+// Configure htmx to not update browser history by default
+htmx.config.pushUrl = false;
+
 htmx.logAll();
 
 Alpine.start()

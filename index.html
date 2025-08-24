@@ -29,7 +29,7 @@
         <!-- Home Button -->
         <button
           @click="resetSearch()"
-          class="p-2 rounded-full bg-secondary hover:bg-secondary/70 transition-colors cursor-pointer z-10"
+          class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer z-10"
           title="Home"
         >
           <svg
@@ -63,10 +63,6 @@
               class="text-sm font-medium text-foreground truncate"
               x-text="openApp?.name || 'Unknown App'"
             ></div>
-            <div
-              class="text-xs text-muted-foreground truncate"
-              x-text="openApp?.url || '#'"
-            ></div>
           </div>
         </div>
 
@@ -75,13 +71,19 @@
           class="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
           <div class="w-full max-w-xl px-4 pointer-events-auto">
-            <form @submit.prevent="handleSearch()" class="relative">
+            <!-- Search mode -->
+            <form
+              x-show="!isInSearchMode"
+              @submit.prevent="handleSearch()"
+              class="relative"
+            >
               <input
                 x-model="searchQuery"
                 name="search"
                 type="text"
                 placeholder="Quick search..."
                 class="w-full h-8 rounded-full px-3 py-1 text-sm border border-input focus:outline-none focus:ring-1 focus:ring-ring focus:border-transparent transition bg-card text-card-foreground"
+                @focus="enterSearchMode()"
               />
               <button
                 type="submit"
@@ -102,6 +104,38 @@
                 </svg>
               </button>
             </form>
+
+            <!-- URL display mode -->
+            <div x-show="isInSearchMode" class="relative">
+              <input
+                x-model="searchQuery"
+                name="search"
+                type="text"
+                :placeholder="openApp ? openApp.url : 'Quick search...'"
+                class="w-full h-8 rounded-full px-3 py-1 text-sm border border-input focus:outline-none focus:ring-1 focus:ring-ring focus:border-transparent transition bg-card text-card-foreground"
+                @blur="exitSearchMode()"
+                @keydown.escape="exitSearchMode()"
+                @keydown.enter="handleSearch()"
+              />
+              <button
+                @click="handleSearch()"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -220,7 +254,7 @@
           hx-indicator="#app-loading"
         >
           <template shadowrootmode="open">
-            <main hx-boost="true"></main>
+            <main hx-boost="true" hx-push-url="false"></main>
           </template>
           <div
             id="app-loading"
@@ -236,9 +270,71 @@
     <script>
       globalThis.XMLHttpRequest = null;
 
+      // Ensure we're always on the base URL to prevent refresh issues
+      if (
+        window.location.pathname !== "/" &&
+        window.location.pathname !== "/index.html"
+      ) {
+        window.history.replaceState(null, "", "/");
+      }
+
+      // Trigger htmx to load the app content
+      const appContainer = document.getElementById("app-container");
+
+      // Catch all <a> clicks and handle "pear://" links
+      appContainer.shadowRoot.addEventListener("click", (evt) => {
+        // Find the closest anchor element in the event path
+        console.log("clicked", evt.target);
+        let anchor = evt.target.closest && evt.target.closest("a[href]");
+        if (!anchor) return;
+
+        evt.preventDefault();
+
+        const href = anchor.getAttribute("href");
+        if (href && href.startsWith("pear://")) {
+          console.log("todo: handle pear:// links", href);
+        }
+
+        console.log("clicked", href);
+      });
+
+      document.body.addEventListener("htmx:beforeSwap", function (evt) {
+        console.log("BEFORESWAP", evt);
+
+        // if (!firstSwap) {
+        //   const appTarget = document
+        //     .getElementById("app-container")
+        //     .shadowRoot.querySelector(
+        //       evt.detail.pathInfo.requestPath === "/"
+        //         ? "#container"
+        //         : "main"
+        //       );
+
+        //   evt.detail.target = appTarget;
+        //   return;
+        // }
+
+        const headers = evt.detail.xhr.getAllResponseHeaders();
+        const target = headers["HX-Retarget"] || "main";
+        const swap = headers["HX-Reswap"] || "innerHTML";
+
+        const appTarget = appContainer.shadowRoot.querySelector(target);
+
+        evt.detail.target = appTarget;
+        evt.detail.swapOverride = swap;
+      });
+
+      // Prevent htmx from updating browser history
+      document.body.addEventListener("htmx:beforeRequest", function (evt) {
+        // Ensure htmx doesn't update the URL for any requests
+        evt.detail.parameters = evt.detail.parameters || {};
+        evt.detail.parameters._pushUrl = false;
+      });
+
       const searchApp = () => {
         return {
           isSearching: false,
+          isInSearchMode: false,
           searchQuery: "",
           searchResults: [],
           openApp: null,
@@ -246,6 +342,7 @@
 
           loadApp(app) {
             this.openApp = app;
+            this.searchQuery = app.url;
             console.log("opening app", app.name, app.url);
 
             this.openPipe = Pear.worker.run(
@@ -258,51 +355,19 @@
 
             globalThis.XMLHttpRequest = PearRequest.create(this.openPipe);
 
-            // Trigger htmx to load the app content
-            const appContainer = document.getElementById("app-container");
-
-            let firstSwap = true;
-
-            document.body.addEventListener("htmx:beforeSwap", function (evt) {
-              console.log("BEFORESWAP", evt);
-
-              // if (!firstSwap) {
-              //   const appTarget = document
-              //     .getElementById("app-container")
-              //     .shadowRoot.querySelector(
-              //       evt.detail.pathInfo.requestPath === "/"
-              //         ? "#container"
-              //         : "main"
-              //     );
-
-              //   evt.detail.target = appTarget;
-              //   return;
-              // }
-
-              const headers = evt.detail.xhr.getAllResponseHeaders();
-              const target = headers["HX-Retarget"] || "main";
-              const swap = headers["HX-Reswap"] || "innerHTML";
-
-              const appTarget = document
-                .getElementById("app-container")
-                .shadowRoot.querySelector(target);
-
-              evt.detail.target = appTarget;
-              evt.detail.swapOverride = swap;
-            });
-
-            // document.body.addEventListener("htmx:afterSwap", function (evt) {
-            //   console.log("AFTERSWAP", evt);
-            //   const parent = document
-            //     .getElementById("app-container")
-            //     .shadowRoot.querySelector("body");
-
-            //   if (parent && !parent.hasAttribute("hx-boost")) {
-            //     parent.setAttribute("hx-boost", "true");
-            //   }
-            // });
-
             htmx.trigger(appContainer, "loadApp");
+          },
+
+          enterSearchMode() {
+            this.isInSearchMode = true;
+            this.searchQuery = "";
+          },
+
+          exitSearchMode() {
+            this.isInSearchMode = false;
+            if (this.openApp) {
+              this.searchQuery = this.openApp.url;
+            }
           },
 
           async handleSearch() {
@@ -321,6 +386,7 @@
 
           resetSearch() {
             this.isSearching = false;
+            this.isInSearchMode = false;
             this.searchQuery = "";
             this.searchResults = [];
             this.openApp = null;
