@@ -212,23 +212,22 @@
         <!-- App Container (when app is open) -->
         <div
           id="app-container"
-          hx-get="/app"
-          hx-swap="innerHTML"
-          hx-trigger="customEvt"
           x-show="openApp !== null"
           class="w-full h-full p-2"
+          hx-get="/"
+          hx-swap="outerHTML"
+          hx-trigger="loadApp"
+          hx-indicator="#app-loading"
         >
+          <template shadowrootmode="open">
+            <main hx-boost="true"></main>
+          </template>
           <div
-            class="app-loading text-center flex items-center justify-center h-full"
+            id="app-loading"
+            class="htmx-indicator text-center flex items-center justify-center h-full"
           >
-            <div>
-              <img
-                src="./assets/logo.png"
-                alt="Pear"
-                class="h-64 w-64 mx-auto"
-              />
-              <span class="block mt-4 text-lg">Loading...</span>
-            </div>
+            <img src="./assets/logo.png" alt="Pear" class="h-64 w-64 mx-auto" />
+            <span class="block mt-4 text-lg">Loading...</span>
           </div>
         </div>
       </div>
@@ -243,26 +242,67 @@
           searchQuery: "",
           searchResults: [],
           openApp: null,
+          openPipe: null,
 
           loadApp(app) {
             this.openApp = app;
             console.log("opening app", app.name, app.url);
 
-            let pipe = Pear.worker.run(
-              "/Users/odinsson/Dev/pear/pearprojects-core/packages/pearprojects-core"
+            this.openPipe = Pear.worker.run(
+              "/Users/odinsson/Dev/pear/doms-blog"
             );
 
             Pear.teardown(() => {
-              pipe.destroy();
+              this.openPipe.destroy();
             });
 
-            globalThis.XMLHttpRequest = PearRequest.create(pipe);
+            globalThis.XMLHttpRequest = PearRequest.create(this.openPipe);
 
             // Trigger htmx to load the app content
             const appContainer = document.getElementById("app-container");
-            if (appContainer) {
-              htmx.trigger(appContainer, "customEvt");
-            }
+
+            let firstSwap = true;
+
+            document.body.addEventListener("htmx:beforeSwap", function (evt) {
+              console.log("BEFORESWAP", evt);
+
+              // if (!firstSwap) {
+              //   const appTarget = document
+              //     .getElementById("app-container")
+              //     .shadowRoot.querySelector(
+              //       evt.detail.pathInfo.requestPath === "/"
+              //         ? "#container"
+              //         : "main"
+              //     );
+
+              //   evt.detail.target = appTarget;
+              //   return;
+              // }
+
+              const headers = evt.detail.xhr.getAllResponseHeaders();
+              const target = headers["HX-Retarget"] || "main";
+              const swap = headers["HX-Reswap"] || "innerHTML";
+
+              const appTarget = document
+                .getElementById("app-container")
+                .shadowRoot.querySelector(target);
+
+              evt.detail.target = appTarget;
+              evt.detail.swapOverride = swap;
+            });
+
+            // document.body.addEventListener("htmx:afterSwap", function (evt) {
+            //   console.log("AFTERSWAP", evt);
+            //   const parent = document
+            //     .getElementById("app-container")
+            //     .shadowRoot.querySelector("body");
+
+            //   if (parent && !parent.hasAttribute("hx-boost")) {
+            //     parent.setAttribute("hx-boost", "true");
+            //   }
+            // });
+
+            htmx.trigger(appContainer, "loadApp");
           },
 
           async handleSearch() {
@@ -284,6 +324,10 @@
             this.searchQuery = "";
             this.searchResults = [];
             this.openApp = null;
+            if (this.openPipe) {
+              this.openPipe.destroy();
+            }
+            this.openPipe = null;
           },
         };
       };
