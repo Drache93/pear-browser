@@ -466,7 +466,7 @@ test('initial state - cannot go forward even with existing history', async funct
     t.is(newHistory.length, 3)
 
     t.is(newHistory.peek(1), false) // cannot go forward
-    t.is(newHistory.peek(-1), false) // can go back to initial state
+    t.is(newHistory.peek(-1), false) // cannot go back to initial state - for now
 
     const result = await newHistory.forward() // ignored
     t.is(result, null)

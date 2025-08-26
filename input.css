@@ -9,6 +9,10 @@ pear-ctrl[data-platform="darwin"] {
   -webkit-app-region: drag;
 }
 
+[x-cloak] {
+  display: none !important;
+}
+
 @theme {
   /* brand */
   --color-primary: #4caf50; /* Pear Green (mid) */

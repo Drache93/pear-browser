@@ -23,118 +23,123 @@
       x-data="searchApp()"
     >
       <!-- Browser Header -->
-      <div
-        class="h-16 bg-background border-b border-border flex items-center px-4 relative gap-4"
-      >
-        <!-- Navigation Buttons (Back/Forward) -->
-        <div class="flex items-center z-10 gap-2">
-          <button
-            @click="goBack()"
-            class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Go Back"
-            :disabled="!canGoBack"
-          >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+      <div class="bg-background border-b border-border px-4 relative">
+        <!-- Header with flex wrap layout -->
+        <div class="flex flex-wrap items-center gap-4 py-2">
+          <!-- Navigation Buttons (Back/Forward) -->
+          <div class="flex items-center z-10 gap-2">
+            <button
+              @click="goBack()"
+              class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Go Back"
+              :disabled="!canGoBack"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              ></path>
-            </svg>
-          </button>
-          <button
-            @click="goForward()"
-            class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Go Forward"
-            :disabled="!canGoForward"
-          >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              ></path>
-            </svg>
-          </button>
-        </div>
-
-        <!-- App Info (when app is open) -->
-        <div x-show="openApp !== null" class="flex items-center gap-2">
-          <img
-            :src="openApp?.icon || './assets/logo.png'"
-            :alt="openApp?.name + ' icon'"
-            class="w-6 h-6 rounded object-cover"
-            @error="$el.src='./assets/logo.png'"
-          />
-          <div class="min-w-0 flex-1">
-            <div
-              class="text-sm font-medium text-foreground truncate"
-              x-text="openApp?.name || 'Unknown App'"
-            ></div>
-          </div>
-        </div>
-
-        <!-- Search Bar with Home Button -->
-        <div
-          class="absolute inset-0 flex items-center justify-center pointer-events-none"
-        >
-          <div class="w-full max-w-xl px-4 pointer-events-auto">
-            <form
-              @submit.prevent="handleSearch()"
-              class="relative flex items-center gap-2"
-            >
-              <img
-                src="./assets/logo.png"
-                alt="Pear Logo"
-                class="w-4 h-4 m-2"
-              />
-              <input
-                x-model="searchQuery"
-                name="search"
-                type="text"
-                :placeholder="openApp ? openApp.url : 'Quick search...'"
-                class="flex-1 h-8 rounded-full px-3 py-1 text-sm border border-input focus:outline-none focus:ring-1 focus:ring-ring focus:border-transparent transition bg-card text-card-foreground"
-              />
-              <button
-                @click="resetSearch()"
-                type="button"
-                class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer"
-                title="Home"
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                ></path>
+              </svg>
+            </button>
+            <button
+              @click="goForward()"
+              class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Go Forward"
+              :disabled="!canGoForward"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Search Bar: Natural flex item that wraps on small screens -->
+          <div
+            class="order-1 flex-[1_0_100%] md:flex-1 md:order-none md:absolute md:inset-0 md:flex md:items-center md:justify-center md:pointer-events-none"
+          >
+            <div class="w-full max-w-xl px-4 md:pointer-events-auto">
+              <form
+                @submit.prevent="handleSearch()"
+                class="relative flex items-center gap-2"
+              >
+                <img
+                  src="./assets/logo.png"
+                  alt="Pear Logo"
+                  class="w-4 h-4 m-2"
+                />
+                <input
+                  x-model="searchQuery"
+                  name="search"
+                  type="text"
+                  :placeholder="openApp ? openApp.url : 'Quick search...'"
+                  class="flex-1 h-8 rounded-full px-3 py-1 text-sm border border-input focus:outline-none focus:ring-1 focus:ring-ring focus:border-transparent transition bg-card text-card-foreground"
+                />
+                <button
+                  @click="resetSearch()"
+                  type="button"
+                  class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer"
+                  title="Home"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                  ></path>
-                </svg>
-              </button>
-            </form>
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                    ></path>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- App Info (when app is open) - positioned on the right -->
+          <div
+            x-show="openApp !== null"
+            class="flex items-center gap-2 ml-auto"
+          >
+            <img
+              :src="openApp?.icon || './assets/logo.png'"
+              :alt="openApp?.name + ' icon'"
+              class="w-6 h-6 rounded object-cover"
+              @error="$el.src='./assets/logo.png'"
+            />
+            <div class="min-w-0 flex-1">
+              <div
+                class="text-sm font-medium text-foreground truncate max-w-32"
+                x-text="openApp?.name || 'Unknown App'"
+              ></div>
+            </div>
           </div>
         </div>
       </div>
+
       <!-- Main Content Area -->
       <div class="flex-1 overflow-auto">
         <!-- Search Results (when no app is open) -->
-        <div x-show="openApp === null" class="h-full">
+        <div x-cloak x-show="openApp === null && isReady" class="h-full">
           <!-- Welcome Screen -->
           <div
             x-show="!isSearching"
@@ -185,7 +190,7 @@
           </div>
 
           <!-- Search Results -->
-          <div x-show="isSearching" class="h-full p-6 overflow-y-auto">
+          <div x-cloak x-show="isSearching" class="h-full p-6 overflow-y-auto">
             <div class="max-w-4xl mx-auto">
               <!-- No results message -->
               <p
@@ -236,9 +241,29 @@
           </div>
         </div>
 
+        <div
+          x-cloak
+          x-show="!isReady"
+            class="text-center flex items-center justify-center h-full flex-col"
+          >
+            <img src="./assets/logo.png" alt="Pear" class="h-64 w-64 mx-auto" />
+            <span class="block mt-4 text-lg">Loading...</span>
+          </div>
+        </div>
+
+        <div
+          x-cloak
+          x-show="appTypeOpened === 'standalone'"
+          class="w-full h-full flex justify-center items-center flex-col gap-4"
+        >
+          <h1>Standalone site opened in new window</h1>
+          <img src="./assets/logo.png" alt="Pear Logo" class="w-64 h-64 mb-8" />
+        </div>
+
         <!-- App Container (when app is open) -->
         <div
           id="app-container"
+          x-cloak
           x-show="openApp !== null"
           class="w-full h-full p-2"
           hx-get="/"
@@ -265,8 +290,6 @@
     </main>
 
     <script>
-      globalThis.XMLHttpRequest = null;
-
       // Ensure we're always on the base URL to prevent refresh issues
       if (
         window.location.pathname !== "/" &&
@@ -277,6 +300,14 @@
 
       // Trigger htmx to load the app content
       const appContainer = document.getElementById("app-container");
+
+      // document.addEventListener("click", (evt) => {
+      //   console.log("clicked anywhere", evt.target);
+      //   let anchor = evt.target.closest && evt.target.closest("a");
+      //   if (!anchor) return;
+      //   console.log("anchor", anchor);
+      //   evt.preventDefault();
+      // });
 
       // Catch all <a> clicks and handle "pear://" links
       appContainer.shadowRoot.addEventListener("click", async (evt) => {
@@ -293,8 +324,6 @@
           return;
         }
 
-        console.log("clicked", href);
-
         const state = hyperHistory.state;
 
         await hyperHistory.pushState({
@@ -304,8 +333,6 @@
       });
 
       document.body.addEventListener("htmx:beforeSwap", function (evt) {
-        console.log("BEFORESWAP", evt);
-
         const headers = evt.detail.xhr.getAllResponseHeaders();
         const target = headers["HX-Retarget"] || "main";
         const swap = headers["HX-Reswap"] || "innerHTML";
@@ -332,8 +359,18 @@
           openPipe: null,
           canGoBack: false,
           canGoForward: false,
+          appTypeOpened: null,
+          isReady: false,
 
           init() {
+            if (globalThis.pearBrowserReady) {
+              this.isReady = true;
+            } else {
+              document.addEventListener("pear-browser-ready", () => {
+                this.isReady = true;
+              }, { once: true });
+            }
+
             setTimeout(async () => {
               this.canGoBack = await globalThis.hyperHistory.peek(-1);
               this.canGoForward = await globalThis.hyperHistory.peek(1);
@@ -341,18 +378,22 @@
               console.log("canGoBack", this.canGoBack);
               console.log("canGoForward", this.canGoForward);
 
-              globalThis.hyperHistory.on("popState", async () => {
-                this.canGoBack = await globalThis.hyperHistory.peek(-1);
-                this.canGoForward = await globalThis.hyperHistory.peek(1);
-                console.log("popState", this.canGoBack, this.canGoForward);
-              });
+              globalThis.hyperHistory.on("popState", this.updateNavigation.bind(this));
             }, 1000);
+          },
+
+          updateNavigation() {
+            this.canGoBack = globalThis.hyperHistory.peek(-1);
+            this.canGoForward = globalThis.hyperHistory.peek(1);
+
+            console.log("canGoBack", this.canGoBack);
+            console.log("canGoForward", this.canGoForward);
           },
 
           async loadApp(app, skipState) {
             this.openApp = app;
             this.searchQuery = app.url;
-            console.log("opening app", app.name, app.url);
+            console.log("opening app", app.name, app.url, app.type);
 
             this.openPipe = Pear.worker.run(app.url);
 
@@ -369,14 +410,22 @@
               });
             }
 
-            htmx.trigger(appContainer, "loadApp");
+            switch (app.type) {
+              case "hypersite":
+                htmx.trigger(appContainer, "loadApp");
+                break;
+              case "standalone":
+                break;
+              default:
+                break;
+            }
+
+            this.appTypeOpened = app.type;
           },
 
           async handleSearch(skipState) {
-            console.log("handling search", this.searchQuery);
             if (this.searchQuery.trim()) {
               this.isSearching = true;
-              console.log("Searching for:", this.searchQuery);
 
               if (!skipState) {
                 await hyperHistory.pushState({
@@ -387,7 +436,6 @@
               const apps = await sheets.list(schemas.apps, {
                 query: `[?name = '${this.searchQuery}']`,
               });
-              console.log(apps);
 
               this.searchResults = apps.map((app) => app.json);
             }
@@ -399,10 +447,12 @@
             this.searchQuery = "";
             this.searchResults = [];
             this.openApp = null;
+            this.appTypeOpened = null;
             if (this.openPipe) {
               this.openPipe.destroy();
             }
             this.openPipe = null;
+            globalThis.hyperHistory.off("popState", this.updateNavigation);
           },
 
           async reloadState(state) {
@@ -428,18 +478,14 @@
 
           async goBack() {
             if (this.canGoBack) {
-              console.log("Going back...");
               const state = await hyperHistory.back();
-              console.log("backed", state);
               this.reloadState(state);
             }
           },
 
           async goForward() {
             if (this.canGoForward) {
-              console.log("Going forward...");
               const state = await hyperHistory.forward();
-              console.log("forwarded", state);
               this.reloadState(state);
             }
           },

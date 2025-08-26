@@ -86,11 +86,9 @@ export default class History extends ReadyResource {
         const index = this.#currentIndex + delta
 
         // Trying to go back to initial state
-        if (index === -1) {
+        if (index === this.#sessionMinIndex) {
             return true
         }
-
-        console.log("peek check", index, this.#sessionMinIndex, this.#history.length)
 
         return index >= this.#sessionMinIndex && index < this.#history.length
     }
@@ -108,24 +106,13 @@ export default class History extends ReadyResource {
 
         const index = this.#currentIndex + delta
 
-        if (index === -1) {
+        if (index === this.#sessionMinIndex) {
             this.#currentState = null
         } else {
             this.#currentState = await this.#history.get(index)
         }
 
         this.#currentIndex = index
-
-        // const newPosition = this.#currentPosition + delta
-        // console.log("go", newPosition, this.#history.length, this.#history.length + newPosition + 1)
-
-        // if (newPosition === this.#distanceToStart) {
-        //     this.#currentState = null
-        // } else {
-        //     this.#currentState = await this.#history.get(this.#history.length + newPosition + 1)
-        // }
-
-        // this.#currentPosition = newPosition
 
         this.emit('popState', this.#currentState)
 
@@ -156,7 +143,8 @@ export default class History extends ReadyResource {
         await this.#history.ready()
 
         // TODO: fix going back in time
-        this.#sessionMinIndex = - 1
+        this.#sessionMinIndex = this.#history.length - 1
+        this.#currentIndex = this.#history.length - 1
     }
 
     async _close() {
