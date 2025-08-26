@@ -25,9 +25,11 @@
   },
   "dependencies": {
     "alpinejs": "^3.14.9",
+    "blind-peering": "^1.10.1",
     "corestore": "^7.4.5",
     "htmx.org": "^2.0.6",
     "pear-request": "^0.2.2",
+    "protomux-wakeup": "^2.6.1",
     "schema-sheets": "^3.0.0"
   }
 }

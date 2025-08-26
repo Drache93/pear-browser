@@ -9,6 +9,11 @@ import * as PearRequest from 'pear-request'
 import defaultApps from './apps.json' assert { type: 'json' }
 import History from './hyperhistory'
 import b4a from 'b4a'
+import BlindPeering from 'blind-peering'
+import Hyperswarm from 'hyperswarm'
+import Wakeup from 'protomux-wakeup'
+
+const blindPeers = ["3x4bak4wh5tar1w3ai5h7ixipq8gpagifggag83k1xetjmhqynxo"]
 
 window.Alpine = Alpine
 window.htmx = htmx
@@ -25,8 +30,13 @@ const keyValue = Pear.config.args.find(arg => arg.startsWith("--key="))
 const key = keyValue ? b4a.from(keyValue.split("=")[1], 'hex') : b4a.from('0d5336f6ce7fa12c717cae34ba7a1e956c98bb971eff6dd6dcf3b2819f0c5a15', 'hex')
 
 const store = new Corestore(Pear.config.storage)
+const swarm = new Hyperswarm()
+const wakeup = new Wakeup()
 const sheets = new SchemaScheets(store, key)
 await sheets.ready()
+
+const blind = new BlindPeering(swarm, store, { wakeup, mirrors: blindPeers })
+blind.addAutobaseBackground(sheets.base)
 
 console.log("key", b4a.toString(sheets.key, 'hex'))
 
@@ -90,13 +100,6 @@ if (freshStart) {
         }
     }
 }
-
-let historyList = await history.list()
-
-console.log("history", historyList)
-
-global.historyList = historyList
-
 
 // Fire off event to say ready
 document.dispatchEvent(new Event('pear-browser-ready'))
