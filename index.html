@@ -115,23 +115,134 @@
             </div>
           </div>
 
-          <!-- App Info (when app is open) - positioned on the right -->
-          <div
-            x-show="openApp !== null"
-            class="flex items-center gap-2 ml-auto"
-          >
-            <img
-              :src="openApp?.icon || './assets/logo.png'"
-              :alt="openApp?.name + ' icon'"
-              class="w-6 h-6 rounded object-cover"
-              @error="$el.src='./assets/logo.png'"
-            />
-            <div class="min-w-0 flex-1">
-              <div
-                class="text-sm font-medium text-foreground truncate max-w-32"
-                x-text="openApp?.name || 'Unknown App'"
-              ></div>
+          <!-- Settings Icon (Top Right) -->
+          <div class="flex items-center gap-2 ml-auto">
+             <!-- App Info (when app is open) -->
+             <div
+             x-cloak
+             x-show="openApp !== null"
+             class="flex items-center gap-2"
+           >
+             <img
+               :src="openApp?.icon || './assets/logo.png'"
+               :alt="openApp?.name + ' icon'"
+               class="w-6 h-6 rounded object-cover"
+               @error="$el.src='./assets/logo.png'"
+             />
+             <div class="min-w-0 flex-1">
+               <div
+                 class="text-sm font-medium text-foreground truncate max-w-32"
+                 x-text="openApp?.name || 'Unknown App'"
+               ></div>
+             </div>
+           </div>
+
+            <button
+              @click="showHistoryModal = true; listHistory()"
+              class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer"
+              title="History"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
+              </svg>
+            </button>
+
+           
+          </div>
+        </div>
+      </div>
+
+      <!-- History Modal -->
+      <div
+        x-show="showHistoryModal"
+        x-cloak
+        class="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        @click.self="showHistoryModal = false"
+      >
+        <div class="bg-background border border-border/50 rounded-2xl shadow-standard max-w-3xl w-full max-h-[75vh] flex flex-col">
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between p-6 border-b border-border/30">
+            <h2 class="text-xl font-medium text-foreground">History</h2>
+            <button
+              @click="showHistoryModal = false"
+              class="p-2 rounded-full bg-secondary hover:bg-primary/70 text-primary-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Modal Content -->
+          <div class="flex-1 overflow-y-auto p-6">
+            <div x-show="!historyList || historyList.length === 0" class="text-center py-12">
+              <svg class="w-12 h-12 text-muted-foreground mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <p class="text-muted-foreground text-sm">No history found</p>
             </div>
+
+            <div x-show="historyList && historyList.length > 0" class="space-y-3">
+              <template x-for="(entry, index) in historyList" :key="index">
+                <div 
+                  @click="entry.openApp ? loadApp(entry.openApp) : (searchQuery = entry.searchQuery, handleSearch()); showHistoryModal = false"
+                  class="group border border-border/30 rounded-xl p-4 hover:bg-muted/50 hover:border-primary/30 transition-all duration-200 cursor-pointer"
+                >
+                  <div class="flex items-start">
+                    <div class="flex-1 min-w-0">
+                      <!-- App Entry Content -->
+                      <div x-show="entry.openApp" class="flex items-center gap-3">
+                        <img
+                          :src="entry.openApp?.icon || './assets/logo.png'"
+                          :alt="(entry.openApp?.name || 'Unknown App') + ' icon'"
+                          class="w-5 h-5 rounded object-cover flex-shrink-0"
+                          @error="$el.src='./assets/logo.png'"
+                        />
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="font-medium text-foreground truncate" x-text="entry.openApp?.name || 'Unknown App'"></span>
+                            <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full flex-shrink-0" x-text="entry.openApp?.type || 'app'"></span>
+                          </div>
+                          <div class="text-xs text-muted-foreground truncate" x-text="entry.openApp?.url || entry.openApp?.description || 'No description'"></div>
+                        </div>
+                      </div>
+                      
+                      <!-- Search Entry Content -->
+                      <div x-show="entry.searchQuery && !entry.openApp" class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <span class="font-medium text-foreground truncate" x-text="entry.searchQuery"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="flex items-center justify-between p-6 border-t border-border/30">
+            <div class="text-xs text-muted-foreground">
+              <span x-text="historyList ? historyList.length : 0"></span> entries
+            </div>
+            
           </div>
         </div>
       </div>
@@ -169,7 +280,7 @@
                 />
                 <button
                   type="submit"
-                  class="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors bg-card rounded-full hover:bg-muted"
+                  class="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors bg-card rounded-full hover:bg-muted cursor-pointer"
                 >
                   <svg
                     class="w-6 h-6"
@@ -361,6 +472,8 @@
           canGoForward: false,
           appTypeOpened: null,
           isReady: false,
+          showHistoryModal: false,
+          historyList: [],
 
           init() {
             if (globalThis.pearBrowserReady) {
@@ -408,6 +521,9 @@
                 openApp: this.openApp,
                 searchQuery: this.searchQuery,
               });
+              if (this.showHistoryModal) {
+                await this.refreshHistory();
+              }
             }
 
             switch (app.type) {
@@ -427,11 +543,14 @@
             if (this.searchQuery.trim()) {
               this.isSearching = true;
 
-              if (!skipState) {
-                await hyperHistory.pushState({
-                  searchQuery: this.searchQuery,
-                });
+                          if (!skipState) {
+              await hyperHistory.pushState({
+                searchQuery: this.searchQuery,
+              });
+              if (this.showHistoryModal) {
+                await this.refreshHistory();
               }
+            }
 
               const apps = await sheets.list(schemas.apps, {
                 query: `[?name = '${this.searchQuery}']`,
@@ -488,6 +607,21 @@
               const state = await hyperHistory.forward();
               this.reloadState(state);
             }
+          },
+
+          async listHistory() {
+            this.historyList = await hyperHistory.list();
+            console.log("Loaded history:", this.historyList);
+          },
+
+          async clearHistory() {
+            await hyperHistory.clear();
+            this.historyList = [];
+            this.showHistoryModal = false;
+          },
+
+          async refreshHistory() {
+            await this.listHistory();
           },
         };
       };

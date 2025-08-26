@@ -91,7 +91,11 @@ if (freshStart) {
     }
 }
 
-let apps = await sheets.list(schemas.apps)
+let historyList = await history.list()
+
+console.log("history", historyList)
+
+global.historyList = historyList
 
 
 // Fire off event to say ready

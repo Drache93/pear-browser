@@ -139,6 +139,29 @@ export default class History extends ReadyResource {
         this.emit('popState', state)
     }
 
+    async list() {
+        const stream = this.#history.createReadStream()
+        const states = []
+
+        for await (const state of stream) {
+            states.push(state)
+        }
+        return states
+    }
+
+    /**
+     * Clear all history entries.
+     * 
+     * @returns {Promise<void>}
+     */
+    async clear() {
+        await this.#history.truncate(0)
+        this.#currentState = null
+        this.#currentIndex = -1
+        this.#sessionMinIndex = 0
+        this.emit('popState', null)
+    }
+
     async _open() {
         await this.#history.ready()
 
