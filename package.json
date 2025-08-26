@@ -14,7 +14,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "dev": "pear run -d .",
-    "test": "brittle test/*.test.js",
+    "test": "brittle test/*.js",
     "build:tailwind": "npx @tailwindcss/cli -i ./input.css -o ./output.css"
   },
   "devDependencies": {

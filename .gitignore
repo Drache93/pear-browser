@@ -1,6 +1,6 @@
 node_modules
 .env
-test
+storage
 .DS_Store
 
 .vscode
@@ -11,3 +11,4 @@ output.css
 # Working image files
 *.png~
 *.png.kra
+apps.json

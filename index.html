@@ -24,34 +24,54 @@
     >
       <!-- Browser Header -->
       <div
-        class="h-16 bg-background border-b border-border flex items-center px-4 relative"
+        class="h-16 bg-background border-b border-border flex items-center px-4 relative gap-4"
       >
-        <!-- Home Button -->
-        <button
-          @click="resetSearch()"
-          class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer z-10"
-          title="Home"
-        >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        <!-- Navigation Buttons (Back/Forward) -->
+        <div class="flex items-center z-10 gap-2">
+          <button
+            @click="goBack()"
+            class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Go Back"
+            :disabled="!canGoBack"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-            ></path>
-          </svg>
-        </button>
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              ></path>
+            </svg>
+          </button>
+          <button
+            @click="goForward()"
+            class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Go Forward"
+            :disabled="!canGoForward"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              ></path>
+            </svg>
+          </button>
+        </div>
 
         <!-- App Info (when app is open) -->
-        <div
-          x-show="openApp !== null"
-          class="flex items-center space-x-3 min-w-0 absolute left-16 z-10"
-        >
+        <div x-show="openApp !== null" class="flex items-center gap-2">
           <img
             :src="openApp?.icon || './assets/logo.png'"
             :alt="openApp?.name + ' icon'"
@@ -66,60 +86,32 @@
           </div>
         </div>
 
-        <!-- Search Bar (always visible and centered) -->
+        <!-- Search Bar with Home Button -->
         <div
           class="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
           <div class="w-full max-w-xl px-4 pointer-events-auto">
-            <!-- Search mode -->
             <form
-              x-show="!isInSearchMode"
               @submit.prevent="handleSearch()"
-              class="relative"
+              class="relative flex items-center gap-2"
             >
-              <input
-                x-model="searchQuery"
-                name="search"
-                type="text"
-                placeholder="Quick search..."
-                class="w-full h-8 rounded-full px-3 py-1 text-sm border border-input focus:outline-none focus:ring-1 focus:ring-ring focus:border-transparent transition bg-card text-card-foreground"
-                @focus="enterSearchMode()"
+              <img
+                src="./assets/logo.png"
+                alt="Pear Logo"
+                class="w-4 h-4 m-2"
               />
-              <button
-                type="submit"
-                class="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  ></path>
-                </svg>
-              </button>
-            </form>
-
-            <!-- URL display mode -->
-            <div x-show="isInSearchMode" class="relative">
               <input
                 x-model="searchQuery"
                 name="search"
                 type="text"
                 :placeholder="openApp ? openApp.url : 'Quick search...'"
-                class="w-full h-8 rounded-full px-3 py-1 text-sm border border-input focus:outline-none focus:ring-1 focus:ring-ring focus:border-transparent transition bg-card text-card-foreground"
-                @blur="exitSearchMode()"
-                @keydown.escape="exitSearchMode()"
-                @keydown.enter="handleSearch()"
+                class="flex-1 h-8 rounded-full px-3 py-1 text-sm border border-input focus:outline-none focus:ring-1 focus:ring-ring focus:border-transparent transition bg-card text-card-foreground"
               />
               <button
-                @click="handleSearch()"
-                class="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors"
+                @click="resetSearch()"
+                type="button"
+                class="p-2 rounded-full bg-secondary hover:bg-secondary/70 text-accent-foreground transition-colors cursor-pointer"
+                title="Home"
               >
                 <svg
                   class="w-4 h-4"
@@ -131,16 +123,16 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                   ></path>
                 </svg>
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
       <!-- Main Content Area -->
-      <div class="flex-1 overflow-hidden">
+      <div class="flex-1 overflow-auto">
         <!-- Search Results (when no app is open) -->
         <div x-show="openApp === null" class="h-full">
           <!-- Welcome Screen -->
@@ -223,9 +215,10 @@
                           x-text="app.name || 'Unnamed App'"
                         ></a>
                         <span class="text-gray-500 text-sm">•</span>
-                        <span class="text-green-700 text-sm font-medium"
-                          >App</span
-                        >
+                        <span
+                          class="text-green-700 text-sm font-medium"
+                          x-text="app.type"
+                        ></span>
                       </div>
                       <div
                         class="text-sm text-green-600 mb-1"
@@ -254,7 +247,11 @@
           hx-indicator="#app-loading"
         >
           <template shadowrootmode="open">
-            <main hx-boost="true" hx-push-url="false"></main>
+            <main
+              hx-boost="true"
+              hx-push-url="false"
+              style="height: 100%"
+            ></main>
           </template>
           <div
             id="app-loading"
@@ -282,7 +279,7 @@
       const appContainer = document.getElementById("app-container");
 
       // Catch all <a> clicks and handle "pear://" links
-      appContainer.shadowRoot.addEventListener("click", (evt) => {
+      appContainer.shadowRoot.addEventListener("click", async (evt) => {
         // Find the closest anchor element in the event path
         console.log("clicked", evt.target);
         let anchor = evt.target.closest && evt.target.closest("a[href]");
@@ -293,26 +290,21 @@
         const href = anchor.getAttribute("href");
         if (href && href.startsWith("pear://")) {
           console.log("todo: handle pear:// links", href);
+          return;
         }
 
         console.log("clicked", href);
+
+        const state = hyperHistory.state;
+
+        await hyperHistory.pushState({
+          ...state,
+          url: href,
+        });
       });
 
       document.body.addEventListener("htmx:beforeSwap", function (evt) {
         console.log("BEFORESWAP", evt);
-
-        // if (!firstSwap) {
-        //   const appTarget = document
-        //     .getElementById("app-container")
-        //     .shadowRoot.querySelector(
-        //       evt.detail.pathInfo.requestPath === "/"
-        //         ? "#container"
-        //         : "main"
-        //       );
-
-        //   evt.detail.target = appTarget;
-        //   return;
-        // }
 
         const headers = evt.detail.xhr.getAllResponseHeaders();
         const target = headers["HX-Retarget"] || "main";
@@ -334,20 +326,35 @@
       const searchApp = () => {
         return {
           isSearching: false,
-          isInSearchMode: false,
           searchQuery: "",
           searchResults: [],
           openApp: null,
           openPipe: null,
+          canGoBack: false,
+          canGoForward: false,
 
-          loadApp(app) {
+          init() {
+            setTimeout(async () => {
+              this.canGoBack = await globalThis.hyperHistory.peek(-1);
+              this.canGoForward = await globalThis.hyperHistory.peek(1);
+
+              console.log("canGoBack", this.canGoBack);
+              console.log("canGoForward", this.canGoForward);
+
+              globalThis.hyperHistory.on("popState", async () => {
+                this.canGoBack = await globalThis.hyperHistory.peek(-1);
+                this.canGoForward = await globalThis.hyperHistory.peek(1);
+                console.log("popState", this.canGoBack, this.canGoForward);
+              });
+            }, 1000);
+          },
+
+          async loadApp(app, skipState) {
             this.openApp = app;
             this.searchQuery = app.url;
             console.log("opening app", app.name, app.url);
 
-            this.openPipe = Pear.worker.run(
-              "/Users/odinsson/Dev/pear/doms-blog"
-            );
+            this.openPipe = Pear.worker.run(app.url);
 
             Pear.teardown(() => {
               this.openPipe.destroy();
@@ -355,25 +362,27 @@
 
             globalThis.XMLHttpRequest = PearRequest.create(this.openPipe);
 
+            if (!skipState) {
+              await hyperHistory.pushState({
+                openApp: this.openApp,
+                searchQuery: this.searchQuery,
+              });
+            }
+
             htmx.trigger(appContainer, "loadApp");
           },
 
-          enterSearchMode() {
-            this.isInSearchMode = true;
-            this.searchQuery = "";
-          },
-
-          exitSearchMode() {
-            this.isInSearchMode = false;
-            if (this.openApp) {
-              this.searchQuery = this.openApp.url;
-            }
-          },
-
-          async handleSearch() {
+          async handleSearch(skipState) {
+            console.log("handling search", this.searchQuery);
             if (this.searchQuery.trim()) {
               this.isSearching = true;
               console.log("Searching for:", this.searchQuery);
+
+              if (!skipState) {
+                await hyperHistory.pushState({
+                  searchQuery: this.searchQuery,
+                });
+              }
 
               const apps = await sheets.list(schemas.apps, {
                 query: `[?name = '${this.searchQuery}']`,
@@ -385,8 +394,8 @@
           },
 
           resetSearch() {
+            console.log("resetting search");
             this.isSearching = false;
-            this.isInSearchMode = false;
             this.searchQuery = "";
             this.searchResults = [];
             this.openApp = null;
@@ -394,6 +403,45 @@
               this.openPipe.destroy();
             }
             this.openPipe = null;
+          },
+
+          async reloadState(state) {
+            this.resetSearch();
+
+            if (!state) {
+              return;
+            }
+
+            if (state.searchQuery) {
+              this.searchQuery = state.searchQuery;
+              this.handleSearch(true);
+            }
+
+            if (state.openApp) {
+              this.loadApp(state.openApp, true);
+            }
+
+            if (state.url) {
+              // TODO: trigger app to load the url
+            }
+          },
+
+          async goBack() {
+            if (this.canGoBack) {
+              console.log("Going back...");
+              const state = await hyperHistory.back();
+              console.log("backed", state);
+              this.reloadState(state);
+            }
+          },
+
+          async goForward() {
+            if (this.canGoForward) {
+              console.log("Going forward...");
+              const state = await hyperHistory.forward();
+              console.log("forwarded", state);
+              this.reloadState(state);
+            }
           },
         };
       };
