@@ -5,7 +5,7 @@
     <script type="module" src="./app.js"></script>
   </head>
 
-  <body class="bg-white m-0 p-0 font-serif">
+  <body class="bg-white m-0 p-0 font-serif overflow-hidden">
     <div
       id="titlebar"
       class="h-8 fixed top-0 left-0 w-full bg-secondary text-accent-foreground z-50"
@@ -248,7 +248,7 @@
       </div>
 
       <!-- Main Content Area -->
-      <div class="flex-1 overflow-auto">
+      <div class="flex-1">
         <!-- Search Results (when no app is open) -->
         <div x-cloak x-show="openApp === null && isReady" class="h-full">
           <!-- Welcome Screen -->
@@ -376,7 +376,7 @@
           id="app-container"
           x-cloak
           x-show="openApp !== null"
-          class="w-full h-full p-2"
+          class="w-full h-full p-2 overflow-y-auto"
           hx-get="/"
           hx-swap="outerHTML"
           hx-trigger="loadApp"

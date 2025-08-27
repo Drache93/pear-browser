@@ -13,6 +13,37 @@ pear-ctrl[data-platform="darwin"] {
   display: none !important;
 }
 
+/* Custom scrollbar styling to match pear branding */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-muted);
+  border-radius: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-tertiary);
+  border-radius: 12px;
+  border: 2px solid var(--color-muted);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--color-muted);
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-tertiary) var(--color-muted);
+}
+
 @theme {
   /* brand */
   --color-primary: #4caf50; /* Pear Green (mid) */
@@ -23,6 +54,9 @@ pear-ctrl[data-platform="darwin"] {
 
   --color-accent: #2e7d32; /* Pear Green (dark) */
   --color-accent-foreground: #ffffff;
+
+  --color-tertiary: #42a5f5; /* Warm brown */
+  --color-tertiary-foreground: #ffffff;
 
   /* ui */
   --color-background: #f6f4ee; /* soft beige paper */
