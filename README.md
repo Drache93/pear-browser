@@ -2,9 +2,16 @@
 
 A peer-to-peer (P2P) application browser built with modern web technologies. Pear Browser allows you to discover and launch P2P applications in your network through an intuitive search interface.
 
+### Search
 <img width="1370" height="930" alt="image (11)" src="https://github.com/user-attachments/assets/337582a4-304b-460e-abd0-0e89280a8904" />
+
+### Search results
 <img width="1363" height="931" alt="image (12)" src="https://github.com/user-attachments/assets/73461636-bddc-49e3-b58c-61d21df73c0e" />
+
+### Blog
 <img width="1368" height="925" alt="image (13)" src="https://github.com/user-attachments/assets/cebbb313-4351-4140-aec7-c44809311bd5" />
+
+### Search history
 <img width="850" height="780" alt="image (14)" src="https://github.com/user-attachments/assets/78adca20-ff66-4344-9fae-2c6af32982c7" />
 
 ## Features
